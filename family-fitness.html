@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Family Sweat Club 🔥</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,500;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --card: #161616;
+    --border: #2a2a2a;
+    --sophia: #ff6b6b;
+    --tianbo: #4ecdc4;
+    --fei: #ffe66d;
+    --shiquan: #a29bfe;
+    --text: #f0f0f0;
+    --muted: #666;
+    --gold: #ffd700;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 50px 20px 30px;
+    position: relative;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(3rem, 10vw, 7rem);
+    letter-spacing: 4px;
+    line-height: 0.9;
+    background: linear-gradient(135deg, #ff6b6b, #ffe66d, #4ecdc4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    background-size: 200%;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .week-badge {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  /* Leaderboard */
+  .leaderboard-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-align: center;
+    margin: 40px 0 20px;
+    text-transform: uppercase;
+  }
+
+  .leaderboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+
+  .member-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .member-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .member-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+
+  .member-card[data-member="sophia"] { --accent: var(--sophia); }
+  .member-card[data-member="tianbo"] { --accent: var(--tianbo); }
+  .member-card[data-member="fei"] { --accent: var(--fei); }
+  .member-card[data-member="shiquan"] { --accent: var(--shiquan); }
+
+  .member-card.active-card {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .rank-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.8rem;
+    opacity: 0.15;
+  }
+
+  .rank-1 .rank-badge { opacity: 1; font-size: 1.4rem; }
+
+  .member-emoji {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+  }
+
+  .member-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  .member-role {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .days-display {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .days-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .progress-track {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .total-time {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .total-time span {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: 100px;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-top: 10px;
+  }
+
+  /* Day dots */
+  .day-dots {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 0;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+
+  .dot.done {
+    background: var(--accent);
+    color: #000;
+    transform: scale(1.1);
+  }
+
+  /* Log panel */
+  .log-section {
+    margin-bottom: 60px;
+  }
+
+  .log-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .member-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .tab-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 20px;
+    border-radius: 100px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    color: var(--text);
+    border-color: #444;
+  }
+
+  .tab-btn.active[data-for="sophia"] { background: var(--sophia); color: #000; border-color: var(--sophia); }
+  .tab-btn.active[data-for="tianbo"] { background: var(--tianbo); color: #000; border-color: var(--tianbo); }
+  .tab-btn.active[data-for="fei"] { background: var(--fei); color: #000; border-color: var(--fei); }
+  .tab-btn.active[data-for="shiquan"] { background: var(--shiquan); color: #000; border-color: var(--shiquan); }
+
+  .log-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .log-panel h3 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.6rem;
+    letter-spacing: 3px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .log-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .day-toggle {
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 10px 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .day-toggle .day-abbr { font-size: 0.6rem; }
+  .day-toggle .check { font-size: 1rem; opacity: 0; transition: opacity 0.2s; }
+
+  .day-toggle.logged {
+    border-color: var(--active-accent);
+    background: color-mix(in srgb, var(--active-accent) 15%, transparent);
+    color: var(--active-accent);
+  }
+
+  .day-toggle.logged .check { opacity: 1; }
+
+  .duration-group {
+    margin-bottom: 20px;
+  }
+
+  .duration-group label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .duration-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .dur-btn {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 12px 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+
+  .dur-btn:hover {
+    border-color: #444;
+    color: var(--text);
+  }
+
+  .dur-btn.selected {
+    border-color: var(--active-accent);
+    background: color-mix(in srgb, var(--active-accent) 15%, transparent);
+    color: var(--active-accent);
+  }
+
+  .custom-dur {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .custom-dur input {
+    flex: 1;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .custom-dur input:focus { border-color: #555; }
+  .custom-dur input::placeholder { color: var(--muted); }
+
+  .log-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: var(--active-accent);
+    color: #000;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .log-btn:hover {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+
+  .log-btn:active { transform: scale(0.98); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 24px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confetti-fall 2s ease-in forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .logo { font-size: 3rem; }
+    .log-panel { padding: 20px; }
+    .log-days { gap: 5px; }
+    .day-toggle { padding: 8px 2px; font-size: 0.55rem; }
+    .duration-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">THE SWEAT CLUB</div>
+  <div class="tagline">No excuses. Family first. 💪</div>
+  <div class="week-badge" id="weekBadge">Week of —</div>
+</header>
+
+<div class="container">
+
+  <!-- Leaderboard -->
+  <div class="leaderboard-title">🏆 This Week's Standings</div>
+  <div class="leaderboard" id="leaderboard"></div>
+
+  <!-- Log Section -->
+  <div class="log-section">
+    <div class="log-title">📝 Log Your Workout</div>
+
+    <div class="member-tabs">
+      <button class="tab-btn active" data-for="sophia" onclick="selectMember('sophia')">Sophia</button>
+      <button class="tab-btn" data-for="tianbo" onclick="selectMember('tianbo')">Tianbo</button>
+      <button class="tab-btn" data-for="fei" onclick="selectMember('fei')">Fei</button>
+      <button class="tab-btn" data-for="shiquan" onclick="selectMember('shiquan')">Shiquan</button>
+    </div>
+
+    <div class="log-panel" id="logPanel">
+      <h3 id="logTitle">SOPHIA'S LOG</h3>
+
+      <div class="duration-group">
+        <label>Mark days you exercised this week</label>
+        <div class="log-days" id="dayToggles"></div>
+      </div>
+
+      <div class="duration-group">
+        <label>Session duration (for today)</label>
+        <div class="duration-grid">
+          <button class="dur-btn" data-mins="15" onclick="selectDur(this)">15m</button>
+          <button class="dur-btn" data-mins="30" onclick="selectDur(this)">30m</button>
+          <button class="dur-btn" data-mins="45" onclick="selectDur(this)">45m</button>
+          <button class="dur-btn" data-mins="60" onclick="selectDur(this)">60m</button>
+        </div>
+        <div class="custom-dur">
+          <input type="number" id="customDur" placeholder="Custom minutes..." min="1" max="300">
+        </div>
+      </div>
+
+      <button class="log-btn" id="logBtn" onclick="logWorkout()">LOG WORKOUT 🔥</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>Reset every Monday · Made with ❤️ for the family</footer>
+
+<script>
+const MEMBERS = [
+  { id: 'sophia',  name: 'Sophia',  role: 'Daughter', emoji: '🔥' },
+  { id: 'tianbo',  name: 'Tianbo',  role: 'Son',      emoji: '⚡' },
+  { id: 'fei',     name: 'Fei',     role: 'Mom',      emoji: '🌸' },
+  { id: 'shiquan', name: 'Shiquan', role: 'Dad',      emoji: '🏋️' },
+];
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+let currentMember = 'sophia';
+let selectedDur = null;
+
+// Storage helpers
+function getWeekKey() {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((day + 6) % 7));
+  return `week_${monday.toISOString().split('T')[0]}`;
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(getWeekKey());
+    return raw ? JSON.parse(raw) : initData();
+  } catch { return initData(); }
+}
+
+function initData() {
+  const d = {};
+  MEMBERS.forEach(m => { d[m.id] = { days: [], totalMins: 0 }; });
+  return d;
+}
+
+function saveData(data) {
+  localStorage.setItem(getWeekKey(), JSON.stringify(data));
+}
+
+// Render leaderboard
+function renderLeaderboard() {
+  const data = loadData();
+  const sorted = [...MEMBERS].sort((a, b) => {
+    const da = data[a.id].days.length, db = data[b.id].days.length;
+    if (db !== da) return db - da;
+    return (data[b.id].totalMins || 0) - (data[a.id].totalMins || 0);
+  });
+
+  const board = document.getElementById('leaderboard');
+  board.innerHTML = '';
+
+  sorted.forEach((m, i) => {
+    const mData = data[m.id];
+    const days = mData.days.length;
+    const mins = mData.totalMins || 0;
+    const hrs = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    const timeStr = hrs > 0 ? `${hrs}h ${remMins}m` : `${mins}m`;
+    const pct = Math.round((days / 7) * 100);
+    const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+
+    const dotsHtml = DAYS.map(d =>
+      `<div class="dot ${mData.days.includes(d) ? 'done' : ''}">${d[0]}</div>`
+    ).join('');
+
+    const card = document.createElement('div');
+    card.className = `member-card ${currentMember === m.id ? 'active-card' : ''}`;
+    card.setAttribute('data-member', m.id);
+    if (i === 0) card.classList.add('rank-1');
+    card.onclick = () => selectMember(m.id);
+    card.innerHTML = `
+      <div class="rank-badge">${rank}</div>
+      <div class="member-emoji">${m.emoji}</div>
+      <div class="member-name">${m.name}</div>
+      <div class="member-role">${m.role}</div>
+      <div class="days-display">${days}<span style="font-size:1.5rem;color:var(--muted)">/7</span></div>
+      <div class="days-label">Days this week</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="total-time">Total: <span>${timeStr}</span></div>
+      <div class="day-dots">${dotsHtml}</div>
+      ${days === 7 ? '<div class="streak-badge">🏆 PERFECT WEEK</div>' : days >= 5 ? '<div class="streak-badge">🔥 ON FIRE</div>' : ''}
+    `;
+    board.appendChild(card);
+  });
+}
+
+// Render day toggles
+function renderDayToggles() {
+  const data = loadData();
+  const mData = data[currentMember];
+  const container = document.getElementById('dayToggles');
+  const accent = getComputedStyle(document.documentElement).getPropertyValue(`--${currentMember}`).trim();
+  container.style.setProperty('--active-accent', `var(--${currentMember})`);
+
+  container.innerHTML = DAYS.map(d => `
+    <button class="day-toggle ${mData.days.includes(d) ? 'logged' : ''}"
+      data-day="${d}" onclick="toggleDay('${d}')"
+      style="--active-accent: var(--${currentMember})">
+      <span class="day-abbr">${d}</span>
+      <span class="check">✓</span>
+    </button>
+  `).join('');
+}
+
+function toggleDay(day) {
+  const data = loadData();
+  const days = data[currentMember].days;
+  const idx = days.indexOf(day);
+  if (idx > -1) days.splice(idx, 1);
+  else days.push(day);
+  saveData(data);
+  renderDayToggles();
+  renderLeaderboard();
+}
+
+function selectDur(btn) {
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedDur = parseInt(btn.dataset.mins);
+  document.getElementById('customDur').value = '';
+}
+
+function selectMember(id) {
+  currentMember = id;
+  selectedDur = null;
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('customDur').value = '';
+
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.for === id);
+  });
+
+  const m = MEMBERS.find(m => m.id === id);
+  document.getElementById('logTitle').textContent = `${m.name.toUpperCase()}'S LOG`;
+
+  const panel = document.getElementById('logPanel');
+  panel.style.setProperty('--active-accent', `var(--${id})`);
+  document.getElementById('logBtn').style.background = `var(--${id})`;
+
+  renderDayToggles();
+  renderLeaderboard();
+}
+
+function logWorkout() {
+  const custom = parseInt(document.getElementById('customDur').value);
+  const mins = custom || selectedDur;
+
+  if (!mins) { showToast('⏱️ Pick a duration first!'); return; }
+
+  const data = loadData();
+  data[currentMember].totalMins = (data[currentMember].totalMins || 0) + mins;
+
+  // Auto-mark today
+  const todayIdx = (new Date().getDay() + 6) % 7;
+  const today = DAYS[todayIdx];
+  if (!data[currentMember].days.includes(today)) {
+    data[currentMember].days.push(today);
+  }
+
+  saveData(data);
+  selectedDur = null;
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('customDur').value = '';
+
+  renderDayToggles();
+  renderLeaderboard();
+
+  const m = MEMBERS.find(m => m.id === currentMember);
+  const messages = [
+    `💪 ${m.name} crushed it! +${mins} mins`,
+    `🔥 ${m.name} is on fire! +${mins} mins`,
+    `⚡ ${m.name} just leveled up! +${mins} mins`,
+    `🏆 ${m.name} is an ANIMAL! +${mins} mins`,
+  ];
+  showToast(messages[Math.floor(Math.random() * messages.length)]);
+  launchConfetti();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function launchConfetti() {
+  const colors = ['#ff6b6b','#4ecdc4','#ffe66d','#a29bfe','#fd79a8'];
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left: ${Math.random() * 100}vw;
+      top: -10px;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      animation-delay: ${Math.random() * 0.5}s;
+      transform: rotate(${Math.random() * 360}deg);
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+// Set week badge
+function setWeekBadge() {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((day + 6) % 7));
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  document.getElementById('weekBadge').textContent = `${fmt(monday)} – ${fmt(sunday)}`;
+}
+
+// Weekly reset check
+function checkReset() {
+  const lastKey = localStorage.getItem('lastWeekKey');
+  const currentKey = getWeekKey();
+  if (lastKey && lastKey !== currentKey) {
+    // New week — old data stays under old key, new week starts fresh
+  }
+  localStorage.setItem('lastWeekKey', currentKey);
+}
+
+// Init
+checkReset();
+setWeekBadge();
+selectMember('sophia');
+</script>
+</body>
+</html>
